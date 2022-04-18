@@ -5,10 +5,9 @@ import itertools
 from gtrending import fetch_repos
 from git import Repo, GitCommandError
 
-"Cloning repos from git and build array of repos with requirements file."
-
 
 def get_repos_with_reqs_file(repos):
+    """Cloning repos from git and build array of repos with requirements file."""
     reps = {}
     repos_path = os.path.join(os.getcwd(), "repos")
     os.mkdir(repos_path)
@@ -32,10 +31,8 @@ def get_repos_with_reqs_file(repos):
     return reps
 
 
-"Create filtered data dictioanry for repositories."
-
-
 def create_repos_filtered_data(fetch_data, repos_reqs_path):
+    """Create filtered data dictionary for repositories."""
     repos_filtered_data = {}
     for data in fetch_data:
         if data["name"] in repos_reqs_path.keys():
@@ -49,10 +46,8 @@ def create_repos_filtered_data(fetch_data, repos_reqs_path):
     return repos_filtered_data
 
 
-"Run on a repository files and calculates how many packages is unused. "
-
-
 def calculate_score(repo_path):
+    """Run on a repository files and calculates how many packages is unused. """
     os.chdir(repo_path)
     packages = set()
     for item in os.listdir(repo_path):
@@ -61,11 +56,8 @@ def calculate_score(repo_path):
     return len(packages)
 
 
-
-"Get unused packcages for item in repository."
-
-
 def get_unused_packages_for_item(repo_path, item):
+    """Get unused packcages for item in repository."""
     packs = set()
     try:
         os.chdir(repo_path)
@@ -81,10 +73,8 @@ def get_unused_packages_for_item(repo_path, item):
     return packs
 
 
-"Print the filtered data about the repositories."
-
-
 def print_filtered_data(filtered_data):
+    """Print the filtered data about the repositories."""
     for data in filtered_data.keys():
         print(f'{data} \n')
         for key, value in filtered_data[data].items():
@@ -95,7 +85,11 @@ def main():
     num_of_repos = int(sys.argv[1])
 
     print("Get trending repositories...")
-    repos_data = fetch_repos(language="python")
+    try:
+        repos_data = fetch_repos(language="python")
+    except ConnectionError:
+        print("Failed to connect git repositories.")
+        exit(1)
 
     print("filter repos without requirements.txt file")
     repos = get_repos_with_reqs_file(repos_data)
